@@ -1,0 +1,12 @@
+interval = 60
+
+[tickers.AAPL]
+above = 250
+below = 200
+pct_above = 3
+pct_below = -3
+
+[tickers.MSFT]
+above = 600
+
+[tickers.NVDA]

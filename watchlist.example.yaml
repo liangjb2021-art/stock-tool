@@ -1,0 +1,11 @@
+# 复制为 watchlist.yaml 后使用: stock-tool watch
+interval: 60          # 刷新间隔(秒),可被 --interval 覆盖
+tickers:
+  AAPL:
+    above: 250        # 价格 >= 250 时提醒
+    below: 200        # 价格 <= 200 时提醒
+    pct_above: 3      # 当日涨幅 >= 3% 时提醒
+    pct_below: -3     # 当日涨跌幅 <= -3%(跌幅达 3%)时提醒
+  MSFT:
+    above: 600
+  NVDA:               # 只盯盘,不设告警
