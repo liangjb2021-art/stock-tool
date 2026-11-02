@@ -12,7 +12,7 @@
 - 自选股来自配置文件(YAML 或 TOML)和/或命令行参数
 - 容错:无效代码、网络失败只影响对应股票,不会中断其它股票和监控循环;休市时显示最近收盘价(代码后带 `*`)。多标的报价会合并历史行情请求,并对 Yahoo 限流做短退避重试
 - 可插拔数据源:实现 `DataSource` 接口即可接入其它免费数据源,默认实现为 `YFinanceSource`
-- 测试不访问网络(数据层被 mock);CI 工作流(Python 3.10–3.12)模板见 `docs/ci.workflow.yml`,复制到 `.github/workflows/ci.yml` 即可启用
+- 测试不访问网络(数据层被 mock);CI 工作流(Python 3.10–3.12)位于 `.github/workflows/ci.yml`,对 push/PR 自动运行
 
 ## 安装
 
