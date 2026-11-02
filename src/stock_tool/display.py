@@ -43,7 +43,10 @@ def build_table(results: list[QuoteResult], title: str = "US Stocks") -> Table:
     t.add_column("市场状态", no_wrap=True)
     for r in results:
         if not r.ok:
-            t.add_row(r.symbol, "[red]错误[/red]", "-", "-", "-", "-", "-", "-")
+            brief = (r.error or "错误").replace("\n", " ")
+            if len(brief) > 36:
+                brief = brief[:33] + "..."
+            t.add_row(r.symbol, f"[red]{brief}[/red]", "-", "-", "-", "-", "-", "-")
             continue
         q = r.quote
         c = _color(q.change)

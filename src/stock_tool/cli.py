@@ -57,7 +57,14 @@ def cmd_quote(args, console: Console) -> int:
         return 2
     results = make_source().get_quotes(wl.symbols)
     console.print(build_table(results))
-    return 0 if any(r.ok for r in results) else 1
+    if not any(r.ok for r in results):
+        if any(r.error and "限流" in r.error for r in results):
+            console.print(
+                "[yellow]提示:[/yellow] Yahoo Finance 非官方接口容易限流；"
+                "过几分钟再试，多标的时已尽量合并请求。"
+            )
+        return 1
+    return 0
 
 
 def cmd_watch(args, console: Console) -> int:
