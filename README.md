@@ -10,7 +10,7 @@
 - `watch`:按间隔循环刷新,条件触发时打印提醒(可选终端响铃、桌面通知)
 - 告警:价格高于/低于某值、当日涨跌幅高于/低于某阈值;**每次穿越只提醒一次**,条件恢复后自动重新计数,不会刷屏
 - 自选股来自配置文件(YAML 或 TOML)和/或命令行参数
-- 容错:无效代码、网络失败只影响对应股票,不会中断其它股票和监控循环;休市时显示最近收盘价(代码后带 `*`)
+- 容错:无效代码、网络失败只影响对应股票,不会中断其它股票和监控循环;休市时显示最近收盘价(代码后带 `*`)。多标的报价会合并历史行情请求,并对 Yahoo 限流做短退避重试
 - 可插拔数据源:实现 `DataSource` 接口即可接入其它免费数据源,默认实现为 `YFinanceSource`
 - 测试不访问网络(数据层被 mock);CI 工作流(Python 3.10–3.12)模板见 `docs/ci.workflow.yml`,复制到 `.github/workflows/ci.yml` 即可启用
 
@@ -83,7 +83,7 @@ pytest
 
 ## 数据来源说明
 
-数据来自 Yahoo Finance,通过开源库 [`yfinance`](https://github.com/ranaroussi/yfinance) 获取。这是**非官方**接口,仅供个人研究和学习使用;数据可能延迟(通常约 15 分钟或更久)、可能出错,接口也可能随时变更或被限流。请遵守 Yahoo 的使用条款。
+数据来自 Yahoo Finance,通过开源库 [`yfinance`](https://github.com/ranaroussi/yfinance) 获取(当前兼容 0.2.x 与 1.x,PyPI 最新为 1.7.x)。这是**非官方**接口,仅供个人研究和学习使用;数据可能延迟(通常约 15 分钟或更久)、可能出错,接口也可能随时变更或被限流。请遵守 Yahoo 的使用条款。若频繁出现 `Too Many Requests`,请加大 `--interval` 或稍后再试。
 
 ## 免责声明
 
@@ -91,7 +91,12 @@ pytest
 
 ## 频道 / 关注
 
-作者在宽客汇 QuantHub 的个人频道「股票研究员」:<https://haimao.app/users/kuanke_stock> ,定期发布带可复现回测的美股/A股事件研究短文。
+作者在宽客汇 QuantHub 的个人频道「股票研究员」:<https://haimao.app/users/kuanke_stock> ,定期发布带可复现回测的美股/A股事件研究短文。近期几篇:
+
+- [“五月卖出”还灵吗？——SPY 冬半年 vs 夏半年](https://haimao.app/posts/53)
+- [200 日均线过滤有用吗？——SPY 均线策略回测](https://haimao.app/posts/54)
+- [美股涨幅都在夜里？——SPY 隔夜 vs 日内](https://haimao.app/posts/58)
+- [VIX 首次站上 30 之后——SPY 事件研究](https://haimao.app/posts/59)
 
 ## License
 

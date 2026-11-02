@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stock-tool"
-version = "0.1.0"
+version = "0.1.1"
 description = "美股盯盘命令行工具 / A CLI watcher for US stocks (yfinance, no API key)"
 readme = "README.md"
 requires-python = ">=3.10"
