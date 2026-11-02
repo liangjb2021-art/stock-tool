@@ -172,3 +172,19 @@ def test_rate_limit_message_and_retry(monkeypatch):
 def test_is_rate_limit_helper():
     assert _is_rate_limit(RateLimitError("Too Many Requests. Rate limited."))
     assert not _is_rate_limit(ConnectionError("down"))
+
+
+def test_batch_all_empty_treated_as_rate_limit():
+    def fake_download(**kw):
+        cols = pd.MultiIndex.from_product([["AAPL", "MSFT"], ["Close", "High", "Low", "Volume"]])
+        import numpy as np
+        return pd.DataFrame(np.nan, index=[0, 1], columns=cols)
+
+    res = YFinanceSource(
+        ticker_factory=lambda s: FakeTicker(s, hist=HIST),
+        download_fn=fake_download,
+        rate_limit_retries=0,
+        rate_limit_sleep=0,
+    ).get_quotes(["AAPL", "MSFT"])
+    assert all(not r.ok for r in res)
+    assert all("限流" in r.error for r in res)

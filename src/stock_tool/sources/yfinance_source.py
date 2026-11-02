@@ -99,6 +99,14 @@ class YFinanceSource(DataSource):
                     return [QuoteResult(sym, error=f"数据源错误: {sym}: {tip}") for sym in cleaned]
                 return super().get_quotes(cleaned)
 
+        # yfinance often returns empty frames under rate limit instead of raising.
+        if not any(hist_map.get(sym) is not None and len(hist_map.get(sym)) > 0 for sym in cleaned):
+            tip = (
+                "Yahoo 限流或暂无数据 (Too Many Requests / empty)。请稍后再试，"
+                "或拉长 watch 间隔（建议 ≥60 秒）"
+            )
+            return [QuoteResult(sym, error=f"数据源错误: {sym}: {tip}") for sym in cleaned]
+
         results: list[QuoteResult] = []
         shared_state: Optional[str] = None
         state_fetched = False
