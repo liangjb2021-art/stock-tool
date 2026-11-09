@@ -188,3 +188,90 @@ def test_batch_all_empty_treated_as_rate_limit():
     ).get_quotes(["AAPL", "MSFT"])
     assert all(not r.ok for r in res)
     assert all("限流" in r.error for r in res)
+
+
+def test_batch_empty_then_retry_succeeds(monkeypatch):
+    calls = {"n": 0}
+    sleeps = []
+    monkeypatch.setattr("stock_tool.sources.yfinance_source.time.sleep", lambda s: sleeps.append(s))
+
+    def fake_download(**kw):
+        calls["n"] += 1
+        cols = pd.MultiIndex.from_product([["AAPL", "MSFT"], ["Close", "High", "Low", "Volume"]])
+        if calls["n"] == 1:
+            import numpy as np
+            return pd.DataFrame(np.nan, index=[0, 1], columns=cols)
+        return pd.DataFrame(
+            [
+                [100, 101, 99, 1000, 200, 201, 199, 3000],
+                [102, 104, 101, 2000, 210, 212, 208, 4000],
+            ],
+            columns=cols,
+        )
+
+    res = YFinanceSource(
+        ticker_factory=lambda s: FakeTicker(
+            s,
+            hist=HIST,
+            fast={"last_price": 103.0, "previous_close": 102.0, "day_high": 105.0, "day_low": 101.0},
+            info={"marketState": "CLOSED"},
+        ),
+        download_fn=fake_download,
+        rate_limit_retries=1,
+        rate_limit_sleep=0.01,
+    ).get_quotes(["AAPL", "MSFT"])
+    assert [r.ok for r in res] == [True, True]
+    assert calls["n"] == 2
+    assert sleeps == [0.01]
+
+
+def test_batch_rate_limit_exception_then_retry_succeeds(monkeypatch):
+    calls = {"n": 0}
+    sleeps = []
+    monkeypatch.setattr("stock_tool.sources.yfinance_source.time.sleep", lambda s: sleeps.append(s))
+
+    def fake_download(**kw):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise RateLimitError("Too Many Requests. Rate limited.")
+        cols = pd.MultiIndex.from_product([["AAPL", "MSFT"], ["Close", "High", "Low", "Volume"]])
+        return pd.DataFrame(
+            [
+                [100, 101, 99, 1000, 200, 201, 199, 3000],
+                [102, 104, 101, 2000, 210, 212, 208, 4000],
+            ],
+            columns=cols,
+        )
+
+    res = YFinanceSource(
+        ticker_factory=lambda s: FakeTicker(s, hist=HIST, info={"marketState": "CLOSED"}),
+        download_fn=fake_download,
+        rate_limit_retries=1,
+        rate_limit_sleep=0.01,
+    ).get_quotes(["AAPL", "MSFT"])
+    assert all(r.ok for r in res)
+    assert calls["n"] == 2
+    assert sleeps == [0.01]
+
+
+def test_batch_empty_retries_then_still_rate_limit(monkeypatch):
+    calls = {"n": 0}
+    sleeps = []
+    monkeypatch.setattr("stock_tool.sources.yfinance_source.time.sleep", lambda s: sleeps.append(s))
+
+    def fake_download(**kw):
+        calls["n"] += 1
+        cols = pd.MultiIndex.from_product([["AAPL", "MSFT"], ["Close", "High", "Low", "Volume"]])
+        import numpy as np
+        return pd.DataFrame(np.nan, index=[0, 1], columns=cols)
+
+    res = YFinanceSource(
+        ticker_factory=lambda s: FakeTicker(s, hist=HIST),
+        download_fn=fake_download,
+        rate_limit_retries=2,
+        rate_limit_sleep=0.01,
+    ).get_quotes(["AAPL", "MSFT"])
+    assert all(not r.ok for r in res)
+    assert all("限流" in r.error for r in res)
+    assert calls["n"] == 3
+    assert sleeps == [0.01, 0.01]

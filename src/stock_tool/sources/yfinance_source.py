@@ -89,7 +89,7 @@ class YFinanceSource(DataSource):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             try:
-                hist_map = self._batch_history(cleaned)
+                hist_map = self._batch_history_with_retry(cleaned)
             except Exception as e:  # noqa: BLE001
                 if _is_rate_limit(e):
                     tip = (
@@ -231,6 +231,35 @@ class YFinanceSource(DataSource):
             return t.get_info().get("marketState")
         except Exception:  # noqa: BLE001 - optional field; never fail the quote
             return None
+
+    def _batch_history_with_retry(self, symbols: list[str]) -> dict[str, Any]:
+        """Retry batch download when Yahoo rate-limits or returns an empty frame.
+
+        yfinance often yields empty DataFrames under rate limit instead of raising,
+        so we treat an all-empty result the same as an explicit rate-limit error.
+        Non-rate-limit exceptions propagate so get_quotes can fall back to sequential.
+        """
+        attempts = self._rate_limit_retries + 1
+        last_rl: Optional[BaseException] = None
+        last_map: dict[str, Any] = {}
+        for i in range(attempts):
+            try:
+                hist_map = self._batch_history(symbols)
+            except Exception as e:  # noqa: BLE001
+                if not _is_rate_limit(e):
+                    raise
+                last_rl = e
+                hist_map = {}
+            last_map = hist_map
+            if any(hist_map.get(sym) is not None and len(hist_map.get(sym)) > 0 for sym in symbols):
+                return hist_map
+            if i + 1 < attempts and self._rate_limit_sleep > 0:
+                time.sleep(self._rate_limit_sleep)
+        if last_rl is not None and not any(
+            last_map.get(sym) is not None and len(last_map.get(sym)) > 0 for sym in symbols
+        ):
+            raise last_rl
+        return last_map
 
     def _batch_history(self, symbols: list[str]) -> dict[str, Any]:
         """Return {SYMBOL: DataFrame} using a single yf.download call."""

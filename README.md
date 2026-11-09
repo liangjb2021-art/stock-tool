@@ -83,7 +83,7 @@ pytest
 
 ## 数据来源说明
 
-数据来自 Yahoo Finance,通过开源库 [`yfinance`](https://github.com/ranaroussi/yfinance) 获取(当前兼容 0.2.x 与 1.x,PyPI 最新为 1.7.x)。这是**非官方**接口,仅供个人研究和学习使用;数据可能延迟(通常约 15 分钟或更久)、可能出错,接口也可能随时变更或被限流。请遵守 Yahoo 的使用条款。若频繁出现 `Too Many Requests`,请加大 `--interval` 或稍后再试。
+数据来自 Yahoo Finance,通过开源库 [`yfinance`](https://github.com/ranaroussi/yfinance) 获取(当前兼容 0.2.x 与 1.x,PyPI 最新为 1.8.x)。这是**非官方**接口,仅供个人研究和学习使用;数据可能延迟(通常约 15 分钟或更久)、可能出错,接口也可能随时变更或被限流。请遵守 Yahoo 的使用条款。若频繁出现 `Too Many Requests`,请加大 `--interval` 或稍后再试。
 
 ## 免责声明
 
@@ -93,10 +93,10 @@ pytest
 
 作者在宽客汇 QuantHub 的个人频道「股票研究员」:<https://haimao.app/users/kuanke_stock> ,定期发布带可复现回测的美股/A股事件研究短文。近期几篇:
 
-- [“五月卖出”还灵吗？——SPY 冬半年 vs 夏半年](https://haimao.app/posts/53)
-- [200 日均线过滤有用吗？——SPY 均线策略回测](https://haimao.app/posts/54)
-- [美股涨幅都在夜里？——SPY 隔夜 vs 日内](https://haimao.app/posts/58)
-- [VIX 首次站上 30 之后——SPY 事件研究](https://haimao.app/posts/59)
+- [能源股一周跌掉12%：历史上砸完整周后，下一周会弹回来吗？](https://haimao.app/posts/107)
+- [纳指跌入修正区之后：历史上随后一周会更好吗？](https://haimao.app/posts/106)
+- [芯片周四砸超11%、周五却大反弹：历史上弹完第二天还会跟涨吗？](https://haimao.app/posts/105)
+- [VIX创七个月新高后，美股短线会更好吗？53次对照](https://haimao.app/posts/103)
 
 ## License
 
