@@ -12,7 +12,7 @@
 - 自选股来自配置文件(YAML 或 TOML)和/或命令行参数
 - 容错:无效代码、网络失败只影响对应股票,不会中断其它股票和监控循环;休市时显示最近收盘价(代码后带 `*`)。多标的报价会合并历史行情请求,并对 Yahoo 限流做短退避重试
 - 可插拔数据源:实现 `DataSource` 接口即可接入其它免费数据源,默认实现为 `YFinanceSource`
-- 测试不访问网络(数据层被 mock);CI 工作流(Python 3.10–3.12)位于 `.github/workflows/ci.yml`,对 push/PR 自动运行
+- 测试不访问网络(数据层被 mock);CI 工作流(Python 3.10–3.13)位于 `.github/workflows/ci.yml`,对 push/PR 自动运行
 
 ## 安装
 
@@ -93,10 +93,12 @@ pytest
 
 作者在宽客汇 QuantHub 的个人频道「股票研究员」:<https://haimao.app/users/kuanke_stock> ,定期发布带可复现回测的美股/A股事件研究短文。近期几篇:
 
-- [能源股一周跌掉12%：历史上砸完整周后，下一周会弹回来吗？](https://haimao.app/posts/107)
-- [纳指跌入修正区之后：历史上随后一周会更好吗？](https://haimao.app/posts/106)
-- [芯片周四砸超11%、周五却大反弹：历史上弹完第二天还会跟涨吗？](https://haimao.app/posts/105)
-- [VIX创七个月新高后，美股短线会更好吗？53次对照](https://haimao.app/posts/103)
+- [美元指数创19个月新高：历史上美元这么强之后，美股下个月反而更差吗？](https://haimao.app/posts/135)
+- [创业板一天跌3.3%、上证只跌0.6%：今年第8次了，之后一周是弹还是接着跌？](https://haimao.app/posts/134)
+- [黄金一周跌4.6%、12周跌了9周：历史上急跌之后，一个月会弹回来吗？](https://haimao.app/posts/133)
+- [超微一周涨近19%，周五却一天跌8.8%：历史上砸完这么狠会自动弹吗？](https://haimao.app/posts/130)
+- [费半周五跌3.7%，当周却还涨了9%：历史上周五砸完，两周后会修复吗？](https://haimao.app/posts/129)
+- [周五必需品涨1.4%、科技跌2%：历史上科技接下来一个月更弱吗？](https://haimao.app/posts/128)
 
 ## License
 
