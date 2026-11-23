@@ -19,6 +19,19 @@ from .sources import DataSource, YFinanceSource
 DEFAULT_INTERVAL = 60.0
 
 
+def _print_rate_limit_tip(results, console: Console) -> bool:
+    """Print a short tip when every symbol failed with a rate-limit error."""
+    if results and not any(r.ok for r in results) and any(
+        r.error and "限流" in r.error for r in results
+    ):
+        console.print(
+            "[yellow]提示:[/yellow] Yahoo Finance 非官方接口容易限流；"
+            "过几分钟再试，多标的时已尽量合并请求。"
+        )
+        return True
+    return False
+
+
 def make_source() -> DataSource:
     """Factory for the data source; tests monkeypatch this."""
     return YFinanceSource()
@@ -58,11 +71,7 @@ def cmd_quote(args, console: Console) -> int:
     results = make_source().get_quotes(wl.symbols)
     console.print(build_table(results))
     if not any(r.ok for r in results):
-        if any(r.error and "限流" in r.error for r in results):
-            console.print(
-                "[yellow]提示:[/yellow] Yahoo Finance 非官方接口容易限流；"
-                "过几分钟再试，多标的时已尽量合并请求。"
-            )
+        _print_rate_limit_tip(results, console)
         return 1
     return 0
 
@@ -81,12 +90,15 @@ def cmd_watch(args, console: Console) -> int:
     n_alerts = sum(0 if r.is_empty() else 1 for r in wl.rules)
     console.print(f"监控 {len(wl.symbols)} 只股票,{n_alerts} 只设置了告警,每 {interval:g} 秒刷新。Ctrl-C 退出。")
     i = 0
+    shown_rl_tip = False
     try:
         while True:
             i += 1
             results = source.get_quotes(wl.symbols)
             now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             console.print(build_table(results, title=f"US Stocks @ {now}"))
+            if not shown_rl_tip:
+                shown_rl_tip = _print_rate_limit_tip(results, console)
             for r in results:
                 if not r.ok:
                     continue

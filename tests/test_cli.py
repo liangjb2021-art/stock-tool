@@ -73,3 +73,21 @@ def test_watch_notify_flag(monkeypatch, capsys):
     src = FakeSource({"AAPL": [q("AAPL", 106, 100)]})
     run(monkeypatch, capsys, src, ["watch", "AAPL", "-a", "AAPL>105", "--notify", "--max-iterations", "1"])
     assert len(sent) == 1
+
+
+def test_quote_rate_limit_tip(monkeypatch, capsys):
+    rc, out = run(
+        monkeypatch, capsys,
+        FakeSource({"AAPL": [SourceError("Yahoo 限流 (Too Many Requests)")]}),
+        ["quote", "AAPL"],
+    )
+    assert rc == 1 and "限流" in out and "过几分钟再试" in out
+
+
+def test_watch_rate_limit_tip_once(monkeypatch, capsys):
+    src = FakeSource({"AAPL": [SourceError("Yahoo 限流 (Too Many Requests)")]})
+    rc, out = run(monkeypatch, capsys, src, ["watch", "AAPL", "--max-iterations", "2"])
+    assert rc == 0
+    assert out.count("过几分钟再试") == 1
+    assert "限流" in out
+
